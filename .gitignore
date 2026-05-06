@@ -1,0 +1,4 @@
+__pycache__/
+.vscode/
+logs/
+traders/_temp_*.py
