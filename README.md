@@ -1,147 +1,170 @@
-# IMC Prosperity 4 Pipeline
+# IMC Prosperity 4 – Quantitative Trading Research & Backtesting Framework
 
-This project is a simple local workflow for iterating on IMC Prosperity 4 traders.
-Everything is self-contained and uses only the Python standard library plus an optional
-PowerShell helper for the Rust backtester.
+This repository contains my research workflow, strategy development process, and backtesting infrastructure used during the IMC Prosperity 4 Trading Competition.
 
-## Folder Layout
+The project focuses on developing and evaluating systematic trading strategies using quantitative analysis, statistical reasoning, and market simulation techniques. It includes custom backtesting tools, parameter tuning utilities, live log analysis workflows, and trading strategy experimentation across Round 3 market datasets.
 
-- `traders/` stores your trader files such as `trader_01.py` or `trader_current.py`
-- `data/` stores the Round 3 CSV files from the data capsule
-- `logs/` stores downloaded live logs from Prosperity
-- `analysis/` stores the tools you will run during research and backtesting
+Final competition submission strategy:
 
-## 1. Copy Round 3 Data Into `data/`
+* `trader_167.py`
 
-Put these files into `data/`:
+---
 
-- `prices_round_3_day_0.csv`
-- `prices_round_3_day_1.csv`
-- `prices_round_3_day_2.csv`
-- `trades_round_3_day_0.csv`
-- `trades_round_3_day_1.csv`
-- `trades_round_3_day_2.csv`
+# Competition Overview
 
-The local backtester requires the three `prices_*.csv` files. The trade files are useful
-for the Rust backtester and future extensions.
+IMC Prosperity is an international quantitative trading competition where participants design algorithmic trading strategies for simulated financial markets under dynamic market conditions.
 
-## 2. Analyze The Capsule
+The challenge involves:
 
-From the project root:
+* market making
+* statistical arbitrage
+* signal generation
+* pricing inefficiencies
+* inventory management
+* risk-aware execution
+
+This repository documents my research and experimentation pipeline during Round 3 of the competition.
+
+---
+
+# Key Features
+
+## Quantitative Research Workflow
+
+* Historical market data analysis
+* Product-level statistical analysis
+* Strategy iteration and experimentation
+* Parameter optimization and performance evaluation
+
+## Backtesting Infrastructure
+
+* Local event-driven backtesting framework
+* Timestamp-based order simulation
+* Position limit enforcement
+* PnL evaluation across multiple trading days
+
+## Strategy Development
+
+Implemented and tested quantitative trading concepts including:
+
+* market-making logic
+* statistical arbitrage exploration
+* spread-based execution
+* volatility-aware parameter tuning
+* Black-Scholes based voucher mispricing checks
+
+## Performance Analysis
+
+* cumulative PnL tracking
+* live submission log analysis
+* trade-level diagnostics
+* execution behavior analysis
+
+---
+
+# Technologies Used
+
+* Python
+* Statistical Analysis
+* Quantitative Finance Concepts
+* Backtesting & Simulation
+* CSV Market Data Processing
+* Black-Scholes Pricing Logic
+
+---
+
+# Repository Structure
+
+```text
+analyze_capsule.py        # Market and product analysis tools
+full_backtest.py          # Local backtesting engine
+live_log_analyzer.py      # Submission log analytics
+sweep.py                  # Parameter optimization utility
+trader.py                 # Experimental trading strategy
+trader_167.py             # Final Round 3 submission strategy
+datamodel.py              # Prosperity-compatible trading datamodel
+```
+
+---
+
+# Research Workflow
+
+## 1. Market Data Analysis
+
+Historical Round 3 datasets were analyzed to identify:
+
+* pricing behavior
+* spread characteristics
+* volatility patterns
+* potential inefficiencies
+
+## 2. Strategy Experimentation
+
+Multiple trading approaches and parameter combinations were tested using local simulations and iterative backtesting.
+
+## 3. Backtesting & Evaluation
+
+Strategies were evaluated using:
+
+* cumulative PnL
+* execution behavior
+* consistency across trading days
+* simulated market conditions
+
+## 4. Submission Log Diagnostics
+
+Live Prosperity submission logs were analyzed to study:
+
+* trade execution quality
+* product-wise profitability
+* market edge behavior
+* strategy robustness
+
+---
+
+# Learning Outcomes
+
+Through this project I gained practical exposure to:
+
+* quantitative trading workflows
+* market simulation
+* event-driven strategy evaluation
+* parameter optimization
+* systematic research methodology
+* probabilistic reasoning in financial markets
+
+The competition significantly strengthened my interest in quantitative research, algorithmic trading, and data-driven financial systems.
+
+---
+
+# Running the Project
+
+## Analyze Market Data
 
 ```bash
-cd analysis
 python analyze_capsule.py
 ```
 
-The script reads `../data/`, summarizes each product, prints a table of recommended
-parameters, and runs a Black-Scholes mispricing check for detected voucher products such
-as `VEV_4000`, `VEV_4500`, and similar strike symbols.
-
-## 3. Write A Baseline Trader
-
-Create a trader file inside `traders/`, for example:
-
-- `traders/trader_01.py`
-- `traders/trader_current.py`
-
-The backtester imports the `Trader` class directly from that file. If your trader uses
-the standard Prosperity-style `from datamodel import ...` import, the local backtester
-provides a compatible in-memory datamodel automatically.
-
-## 4. Run The Local Backtest
-
-From `analysis/`:
+## Run Local Backtest
 
 ```bash
-python full_backtest.py trader_01
+python full_backtest.py trader_167
 ```
 
-Example:
+## Sweep Parameters
 
 ```bash
-python full_backtest.py trader_current
+python sweep.py trader_167 PARAM 1 2 3 4
 ```
 
-The script groups rows by timestamp, calls `Trader.run()` once per timestamp, fills only
-aggressive orders that cross the spread, applies hardcoded position limits, and prints:
-
-- Day 0 PnL
-- Day 1 PnL
-- Day 2 PnL
-- Total PnL
-- Execution time
-
-## 5. Sweep Parameters
-
-If your trader has a numeric parameter such as:
-
-```python
-VEV_BUY_TOL = 4
-```
-
-you can test several values quickly:
+## Analyze Submission Logs
 
 ```bash
-python sweep.py trader_current VEV_BUY_TOL 2 3 4 5 6
+python live_log_analyzer.py path_to_log.json
 ```
 
-The sweeper creates a temporary trader file, runs the full backtest for each value,
-prints the resulting PnL, and deletes the temporary file at the end.
+---
 
-## 6. Analyze A Live Submission Log
+# Note
 
-After uploading a trader in Prosperity, download the resulting log JSON and place it
-anywhere convenient, for example in `logs/`.
-
-Then run:
-
-```bash
-python live_log_analyzer.py ..\logs\my_submission.json
-```
-
-The script will create:
-
-- `my_submission_trades.csv`
-- `my_submission_cumulative_pnl.csv`
-
-It also prints a quick summary showing total PnL, trade counts per product, and the best
-and worst submission-side trades using immediate mid-price edge when available.
-
-## 7. Optional Rust Backtester Setup
-
-If you want to compare against the Rust backtester:
-
-```powershell
-.\setup_rust_backtester.ps1
-```
-
-By default it looks for:
-
-- `..\traders\trader_current.py`
-
-You can point it to another trader file:
-
-```powershell
-.\setup_rust_backtester.ps1 -TraderPath ..\traders\trader_01.py
-```
-
-The script will:
-
-- check for Rust and cargo
-- switch to the GNU toolchain if the MSVC linker is missing
-- clone `prosperity_rust_backtester` if needed
-- copy your Round 3 CSVs into the expected dataset folder
-- copy your trader to `traders/latest_trader.py`
-- build and run the Rust backtester
-
-## Typical Beginner Workflow
-
-1. Copy the six Round 3 CSV files into `data/`.
-2. Run `python analyze_capsule.py` from `analysis/`.
-3. Create `traders/trader_current.py`.
-4. Run `python full_backtest.py trader_current`.
-5. Tune a parameter with `python sweep.py trader_current PARAM 1 2 3`.
-6. Upload your trader to Prosperity.
-7. Download the log and run `python live_log_analyzer.py path_to_log.json`.
-8. Optionally compare with the Rust backtester.
+This repository is intended for research, experimentation, and educational purposes related to quantitative trading strategy development during the IMC Prosperity 4 competition.
